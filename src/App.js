@@ -22,6 +22,8 @@ import { Icon } from "@mui/material";
 import { render } from "@testing-library/react";
 import Barchart from "./Barchart";
 
+import PlayCircle from "./PlayCircle";
+
 function App() {
   const [state, setState] = useState({ false: "false" });
 
@@ -113,9 +115,9 @@ function App() {
               <div className="flex justify-center items-center p-1">
                 <IconButton onClick={toggle}>
                   {state ? (
-                    <BsPlayCircle size="1.5em" color="black" />
+                    <PlayCircle size="2em" color="black" />
                   ) : (
-                    <Barchart />
+                    <Barchart size="2em"/>
                   )}
                 </IconButton>
               </div>
