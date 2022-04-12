@@ -17,7 +17,7 @@ import { useSpring, animated } from "react-spring";
 
 import commands from "./commands.txt";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Icon } from "@mui/material";
 import { render } from "@testing-library/react";
 import Barchart from "./Barchart";
@@ -29,14 +29,17 @@ function App() {
     setState(!state);
   };
 
-  const [kevCommands, setKevCommands] = useState(["fetching..."]);
-  fetch(commands)
-    .then((response) => response.text())
-    .then((text) => {
-      //get rid of the spaces in the text
-      text = text.replace("\n", " ").replace(/\s+/g, " ").split(" ");
-      setKevCommands(text);
-    });
+  const [kevCommands, setKevCommands] = useState(["fetching"]);
+
+  useEffect(() => {
+    fetch(commands)
+      .then((response) => response.text())
+      .then((text) => {
+        //get rid of the spaces in the text
+        text = text.replace("\n", " ").replace(/\s+/g, " ").split(" ");
+        setKevCommands(text);
+      });
+  }, []);
 
   return (
     <main className="bg-custom-bg text-custom-fg overflow-auto flex flex-col">
