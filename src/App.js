@@ -5,6 +5,7 @@ import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
+import { createTheme } from '@mui/material/styles';
 
 import {
   AiOutlineHeart,
@@ -23,8 +24,27 @@ import { render } from "@testing-library/react";
 import Barchart from "./Barchart";
 
 import PlayCircle from "./PlayCircle";
+import { ThemeProvider } from "@emotion/react";
 
 function App() {
+
+  const theme = createTheme({
+    palette: {
+      primary: {
+        light: '#FFFFFF',
+        main: '#3f50b5',
+        dark: '000000',
+        contrastText: '#fff',
+      },
+      secondary: {
+        light: '#1C7E06',
+        main: '#f44336',
+        dark: '#444444',
+        contrastText: '#000',
+      },
+    },
+  });
+
   const [state, setState] = useState({ false: "false" });
 
   const toggle = () => {
@@ -39,6 +59,8 @@ function App() {
       .then((text) => {
         //get rid of the spaces in the text
         text = text.replace("\n", " ").replace(/\s+/g, " ").split(" ");
+        //sort
+        text.sort();
         setKevCommands(text);
       });
   }, []);
@@ -100,15 +122,6 @@ function App() {
         <div className="max-w-screen-sm w-full mx-auto flex-col">
           <div className="px-3 ">
             <div className="flex justify-between items-center">
-              <Autocomplete
-                disablePortal
-                id="combo-box-demo"
-                options={kevCommands}
-                sx={{ width: 300 }}
-                renderInput={(params) => (
-                  <TextField {...params} label="Search" />
-                )}
-              />
               <div className="flex items-center">
                 <div>0:00</div>
               </div>
@@ -116,13 +129,22 @@ function App() {
                 <IconButton onClick={toggle}>
                   {state ? (
                     <PlayCircle size="2em" color="black" />
-                  ) : (
-                    <Barchart size="2em"/>
-                  )}
+                    ) : (
+                      <Barchart size="2em"/>
+                      )}
                 </IconButton>
               </div>
               <div>0:16</div>
             </div>
+                      <Autocomplete
+                        disablePortal
+                        id="combo-box-demo"
+                        options={kevCommands}
+                        sx={{ width: "100%" }}
+                        renderInput={(params) => (
+                          <TextField {...params} label="Search" />
+                        )}
+                      />
           </div>
         </div>
       </div>
@@ -130,14 +152,13 @@ function App() {
         <div className="m-3 mt-0">
           <div>
             <div className="flex justify-between pt-3">
-              <button className="px-2 py-2 uppercase tracking-widest bg-custom-mg border-none flex items-center font-semibold text-sm svelte-1r54uzk">
-                {" "}
-                Skip
+                <Button variant="contained" color="grey" >Skip
                 <span className="tracking-normal lowercase">(+1s)</span>
-              </button>
-              <button className="px-2 py-2 uppercase tracking-widest border-none flex items-center font-semibold text-sm svelte-1r54uzk bg-custom-positive">
-                Submit
-              </button>
+                  
+                </Button>
+                <Button variant="contained" color="secondary" >Submit
+                  
+                </Button>
             </div>
           </div>
         </div>
