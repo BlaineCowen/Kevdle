@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "how-long-at-work",
+  "private_key_id": "14266aae0a0092b8da5cadbb01ac68dcc8d1f58d",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQC069c+HtAvqHC7\nj2bxCKnF88DMUzBhJZwb8OzFLh3Are2dP7FkizLFSRvakN4F247SoPk0Ant5CKk2\narzOXgD6AGJNFajfpvHI03oMwcJCfscjHFVjjc3Px7OKotbuIDTgruwFCtVuo/A/\ntQGomFx+dj49Mxzp/gEn4SxQCeFgUNOYFVi8JUXAcYgN0f+Zw8LvoSpLxtDfDsyH\ncNsRcHXiE6Z0DGcwY/5Re2FTaCT6vWB7e5Q5wbj+ZDB0e+P3iNdczNKm5u0pyTo0\nROYCD2ePWKojf04/VIYxmVeijvJH8kbcr8P5r+8A8IBxGCnvL3+RqD7pBxL6p7v5\n9Qz1BW1ZAgMBAAECggEAEg1IoyIBsYmn4u0Mb08nGnFnerOvu3e8V3Te+Q8wiIvK\nLlMfPPofIRx59yFWh+TX/7fwWZJIVeOpd5ynlVs/k3JTnJ+lQ5iVni1Mq6ZvHsGl\n1sDiW743y4xAY7w7ABROVl9ZvSiPMnyQ0Zh6z4LRUsxzShm2IDpYDO28pUlRF7IZ\nmnIPXs1bxTXzv7E0GLVgecZEqL7e8fUEDI57hZO6URQn5pUYf6HOEbONwUfGbIj2\nxYF6g4b66EgQDfN03xq78twcxUPWyA986Srievoot3RgvXBvtwBU/1MFqft/ufil\nkTZkvPFu8Gv283lmLN+iMkoFTRluflEclf3ANfjbQQKBgQD0L8PqBl03Yu4mwy8O\nnwKnbf6FSAflQo/+EBofYE6kUaH0iOVDHA1jKJ4Kk+FZd1Yv0xIXkD7LDZt6GQXZ\nYak0qR9EwPcVBUST9KOx/aEp4FWMO9T5za4XjmDnDhM0JY7fMJO2eo3yek0nVlMD\nmFPqJMsPv0p8arEw7kTWO6tlmQKBgQC9rInfdun4kP7DthetWSS+gIjVVW3OVuoa\nkuYAKoDzKqDmUKWQgN3vqtWZTtIEQKJOxP2lPWWcBBhuUpfqw8WH6Rbk6Bw6RgJk\nYlVe6RCfj7f6ORGYCr7HKrbbbVo82dXmRppM4BpaIwR7THc/S731uZZk+7e9ZK9F\neBGgyNedwQKBgCHn8AAy2gayyfa/62zQT4IIF+tR0SbYUz4n5jitGr5eR2q5B3yG\nDKXUIf2+AvB1TZZebIixEscHIKuXheRlVyVkxl65nJViod8ZfRFd8l7qM3bBaBU3\nphDHSFVM8wWuoWQETr5rzgH5UXVA204IfL5qVXfeS+1ysx/kNdK5flchAoGABuZP\n3aElwbUEj3oAQn4LqCJk193TsL3Ypj7Rvw/MwQu77qTgYPFPIXjFbF5BpYX0YYko\n8Ona2GINwXWfsRqOBPOlsY3/+N6zF5O8J0ezIxrHRoLs8OrzJauYG0NPFQeXkFjh\nJArC6qR7dUDC1bqbnmSx49qERI91EMHdYkvsDAECgYAkECei9ZgpBWsYrS4tHo8M\n7tWZ/GaUhAOl+uCt7d1p+QsjrlIIjhtIbbI9jHrX05E6LS+MupkFZFdp4wPKHeXY\nISeaQ6AHF6LI8RqMIC5UNzDCY8Jk9R/4qc3Ote/6UUqBUMEPzKYKkIwKsm8+rHyL\nAsFDblvkhsKfVY4zORV5GA==\n-----END PRIVATE KEY-----\n",
+  "client_email": "blaine@how-long-at-work.iam.gserviceaccount.com",
+  "client_id": "109736919655061949363",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/blaine%40how-long-at-work.iam.gserviceaccount.com"
+}

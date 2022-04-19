@@ -1,6 +1,17 @@
 import "./App.css";
 import React from "react";
 
+import {
+  S3Client,
+  S3,
+  ListObjectsV2,
+  ListObjectsV2Command,
+  PutBucketCorsCommand,
+  ListObjectsCommand,
+} from "@aws-sdk/client-s3";
+import { CognitoIdentityClient } from "@aws-sdk/client-cognito-identity";
+import { fromCognitoIdentityPool } from "@aws-sdk/credential-provider-cognito-identity";
+
 import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
@@ -24,6 +35,7 @@ import {
   AiOutlineInfoCircle,
   AiOutlineQuestionCircle,
 } from "react-icons/ai";
+
 import { IoMdStats } from "react-icons/io";
 import { BsPlayCircle } from "react-icons/bs";
 import { useSpring, animated } from "react-spring";
@@ -39,7 +51,9 @@ import PlayCircle from "./PlayCircle";
 import { ThemeProvider } from "@emotion/react";
 import { palette } from "@mui/system";
 import { alpha, styled } from "@mui/material/styles";
+import { appendOwnerState } from "@mui/base";
 
+/* jshint ignore:start */
 function App() {
   const theme = createTheme({
     components: {
@@ -105,31 +119,87 @@ function App() {
       "&:hover fieldset": {
         borderColor: "white",
       },
-      "&.Mui-focused fieldset": {
-        borderColor: "green",
-      },
+    },
+    "&.Mui-focused fieldset": {
+      borderColor: "green",
     },
   });
 
-  const [state, setState] = useState({ false: "false" });
+  const [state, setState] = useState(true);
 
   const toggle = () => {
     setState(!state);
+    //wait for audio to finish
   };
 
-  const [kevCommands, setKevCommands] = useState(["fetching"]);
+  const playAudio = () => {
+    console.log(newAudio);
+    newAudio.pause();
+    newAudio.currentTime = 0;
+    toggle();
+    console.log(state);
+    if (state) {
+      newAudio.play();
+    }
+  };
+
+  const [kevCommands, setKevCommands] = useState([]);
+
+  // useEffect(() => {
+  //   fetch(commands)
+  //     .then((response) => response.text())
+  //     .then((text) => {
+  //       //get rid of the spaces in the text
+  //       text = text.replace("\n", " ").replace(/\s+/g, " ").split(" ");
+  //       //sort
+  //       text.sort();
+  //       setKevCommands(text);
+  //     });
+  // }, []);
+  const [newAudio, setAudio] = useState(null);
 
   useEffect(() => {
-    fetch(commands)
-      .then((response) => response.text())
-      .then((text) => {
-        //get rid of the spaces in the text
-        text = text.replace("\n", " ").replace(/\s+/g, " ").split(" ");
-        //sort
-        text.sort();
-        setKevCommands(text);
+    const bucket = "kevdle-test";
+    const url = `https://storage.googleapis.com/storage/v1/b/${bucket}/o`;
+    fetch(url)
+      .then((response) => response.json())
+      .then((response) => {
+        const objects = response.items.map((item) =>
+          item.name.replace(".mp3", "")
+        );
+        const randomItem = objects[Math.floor(Math.random() * objects.length)];
+        console.log(`${randomItem}.mp3`);
+        setKevCommands(objects);
+
+        const audioUrl = `https://storage.googleapis.com/kevdle-test/${randomItem}.mp3`;
+        setAudio(new Audio(audioUrl));
       });
   }, []);
+
+  useEffect(() => {
+    if (newAudio) {
+      newAudio.addEventListener("timeupdate", () => {
+        if (newAudio.currentTime < 10) {
+          document.getElementById(
+            "current-time"
+          ).innerHTML = `0:0${newAudio.currentTime.toFixed(0)}`;
+        } else {
+          document.getElementById(
+            "current-time"
+          ).innerHTML = `0:${newAudio.currentTime.toFixed(0)}`;
+        }
+      });
+
+      document.getElementById(
+        "total-time"
+      ).innerHTML = `0:${newAudio.duration.toFixed(0)}`;
+
+      newAudio.onended = () => {
+        setState(state);
+        console.log("audio over");
+      };
+    }
+  }, [newAudio]);
 
   return (
     <main className="bg-black text-red-fg overflow-auto flex flex-col h-screen">
@@ -139,10 +209,10 @@ function App() {
             <div className="flex justify-evenly text-custom-fgcolor p-3 items-center">
               <div className="flex flex-1">
                 <IconButton>
-                  <AiOutlineInfoCircle size="1.5em" color="white" />
+                  <AiOutlineHeart size="1.5em" color="white" />
                 </IconButton>
                 <IconButton>
-                  <AiOutlineHeart size="1.5em" color="white" />
+                  <AiOutlineInfoCircle size="1.5em" color="white" />
                 </IconButton>
               </div>
               <h1 className="font-serif text-3xl font-bold flex-grow text-center flex-1 text-white">
@@ -184,24 +254,52 @@ function App() {
           </div>
         </div>
       </div>
-      <div className="inset-x-0 bottom-0">
+      <div className="inset-x-0 bottom-0 border-t border-custom-line border-gray">
+        <div className="max-w-screen-sm w-full mx-auto flex-col px-3">
+          <div id="playbar-container" className="h-3 relative">
+            {/* vertical lines */}
+
+            <div
+              id="playbar-foreground"
+              className="w-full h-3 bg-green absolute"
+              style={{ width: "50%" }}
+            ></div>
+            <div
+              id="playbar-background"
+              className="w-full h-3 bg-black absolute"
+              style={{ width: "50%" }}
+            ></div>
+          </div>
+
+          <div id="vertical-line-container" className="h-3 relative"></div>
+          <div
+            id="vertical lines"
+            className="border-x border-gray  h-3 inline-block"
+            style={{ width: "8.25%" }}
+          ></div>
+          <div
+            id="vertical lines"
+            className="border-x border-gray h-3 inline-block"
+            style={{ width: "8.25%" }}
+          ></div>
+        </div>
         <div className="border-t border-custom-line border-gray min-h-min">
           <div className="max-w-screen-sm w-full mx-auto flex-col">
             <div className="px-3 ">
               <div className="flex justify-between items-center text-white">
                 <div className="flex items-center">
-                  <div>0:00</div>
+                  <div id="current-time">0:00</div>
                 </div>
                 <div className="flex justify-center items-center p-1">
-                  <IconButton onClick={toggle}>
+                  <IconButton id="play-button" onClick={playAudio}>
                     {state ? (
                       <PlayCircle size="2em" color="white" />
                     ) : (
-                      <Barchart size="2em" />
+                      <Barchart size="2em" color="white" />
                     )}
                   </IconButton>
                 </div>
-                <div>0:16</div>
+                <div id="total-time">0:16</div>
               </div>
               <Autocomplete
                 disablePortal
@@ -250,6 +348,7 @@ function App() {
       </div>
     </main>
   );
+  /* jshint ignore:end */
 }
 
 export default App;
