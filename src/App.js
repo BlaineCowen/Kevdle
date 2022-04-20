@@ -35,6 +35,7 @@ import {
   AiOutlineInfoCircle,
   AiOutlineQuestionCircle,
 } from "react-icons/ai";
+import RedEx from "./RedEx";
 
 import { IoMdStats } from "react-icons/io";
 import { BsPlayCircle } from "react-icons/bs";
@@ -140,23 +141,21 @@ function App() {
     console.log(state);
     if (state) {
       newAudio.play();
+      if (newAudio.duration >= 10) {
+        document.getElementById(
+          "total-time"
+        ).innerHTML = `0:${newAudio.duration.toFixed(0)}`;
+      } else {
+        document.getElementById(
+          "total-time"
+        ).innerHTML = `0:0${newAudio.duration.toFixed(0)}`;
+      }
     }
   };
 
   const [kevCommands, setKevCommands] = useState([]);
-
-  // useEffect(() => {
-  //   fetch(commands)
-  //     .then((response) => response.text())
-  //     .then((text) => {
-  //       //get rid of the spaces in the text
-  //       text = text.replace("\n", " ").replace(/\s+/g, " ").split(" ");
-  //       //sort
-  //       text.sort();
-  //       setKevCommands(text);
-  //     });
-  // }, []);
   const [newAudio, setAudio] = useState(null);
+  const [audioName, setAudioName] = useState("");
 
   useEffect(() => {
     const bucket = "kevdle-test";
@@ -169,6 +168,7 @@ function App() {
         );
         const randomItem = objects[Math.floor(Math.random() * objects.length)];
         console.log(`${randomItem}.mp3`);
+        setAudioName(randomItem);
         setKevCommands(objects);
 
         const audioUrl = `https://storage.googleapis.com/kevdle-test/${randomItem}.mp3`;
@@ -176,9 +176,43 @@ function App() {
       });
   }, []);
 
+  const [guesses, setGuesses] = useState([]);
+  const [tries, setTries] = useState(0);
+
+  const userSubmit = () => {
+    const guess = document.getElementById("combo-box-demo").value;
+    setGuesses([...guesses, guess]);
+    console.log(guesses);
+    //add to tries
+    console.log(newAudio);
+    if (guess === audioName) {
+      setTries(tries + 1);
+      console.log("correct");
+      //make a window appear that says correct
+    } else {
+      const tempTries = tries + 1;
+      setTries(tries + 1);
+      console.log("incorrect");
+      //make guess box (tries) visible
+      console.log(tempTries);
+      document.getElementById(`guess-${tempTries}-box`).style.display = "flex";
+      document.getElementById(`guess-${tempTries}-text`).innerHTML = guess;
+    }
+  };
+
+  const skip = () => {
+    setTries(tries + 1);
+    const tempTries = tries + 1;
+    document.getElementById(`guess-${tempTries}-box-skip`).style.display =
+      "flex";
+  };
+
   useEffect(() => {
     if (newAudio) {
       newAudio.addEventListener("timeupdate", () => {
+        document.getElementById("playbar-foreground").style.width = `${
+          (newAudio.currentTime / newAudio.duration) * 100
+        }%`;
         if (newAudio.currentTime < 10) {
           document.getElementById(
             "current-time"
@@ -189,11 +223,6 @@ function App() {
           ).innerHTML = `0:${newAudio.currentTime.toFixed(0)}`;
         }
       });
-
-      document.getElementById(
-        "total-time"
-      ).innerHTML = `0:${newAudio.duration.toFixed(0)}`;
-
       newAudio.onended = () => {
         setState(state);
         console.log("audio over");
@@ -233,23 +262,95 @@ function App() {
       <div className="w-full h-full flex flex-col flex-grow relative">
         <div className="max-w-screen-sm w-full mx-auto h-full flex flex-col justify-between overflow-auto">
           <div className="p-3 flex-col items-evenly">
-            <div className="p-2 mb-2 border border-gray flex items-center last:mb-0 border-y1-2">
-              <div className="w-5 h-5"></div>
+            <div className="p-2 mb-2 h-10 border border-gray flex items-center last:mb-0 border-y1-2">
+              <div id="guess-1-box" style={{ display: "none" }}>
+                <div className="mr-2">
+                  <RedEx />
+                </div>
+                <div className="flex flex-1 justify-between items-center">
+                  <div id="guess-1-text" className="text-white text-small">
+                    TEST
+                  </div>
+                </div>
+              </div>
+              <div id="guess-1-box-skip" style={{ display: "none" }}>
+                <div className="mr-2 w-5 h-5 border-2  border-gray"></div>
+                <div className="flex flex-1 justify-between items-center">
+                  <div className="text-gray text-small">SKIPPED</div>
+                </div>
+              </div>
             </div>
-            <div className="p-2 mb-2 border border-gray flex items-center last:mb-0">
-              <div className="w-5 h-5"></div>
+            <div className="p-2 mb-2 h-10 border border-gray flex items-center last:mb-0 border-y1-2">
+              <div id="guess-2-box" style={{ display: "none" }}>
+                <div className="mr-2">
+                  <RedEx />
+                </div>
+                <div className="flex flex-1 justify-between items-center">
+                  <div id="guess-2-text" className="text-white text-small">
+                    TEST
+                  </div>
+                </div>
+              </div>
+              <div id="guess-2-box-skip" style={{ display: "none" }}>
+                <div className="mr-2 w-5 h-5 border-2  border-gray"></div>
+                <div className="flex flex-1 justify-between items-center">
+                  <div className="text-gray text-small">SKIPPED</div>
+                </div>
+              </div>
             </div>
-            <div className="p-2 mb-2 border border-gray flex items-center last:mb-0">
-              <div className="w-5 h-5"></div>
+            <div className="p-2 mb-2 h-10 border border-gray flex items-center last:mb-0 border-y1-2">
+              <div id="guess-3-box" style={{ display: "none" }}>
+                <div className="mr-2">
+                  <RedEx />
+                </div>
+                <div className="flex flex-1 justify-between items-center">
+                  <div id="guess-3-text" className="text-white text-small">
+                    TEST
+                  </div>
+                </div>
+              </div>
+              <div id="guess-3-box-skip" style={{ display: "none" }}>
+                <div className="mr-2 w-5 h-5 border-2  border-gray"></div>
+                <div className="flex flex-1 justify-between items-center">
+                  <div className="text-gray text-small">SKIPPED</div>
+                </div>
+              </div>
             </div>
-            <div className="p-2 mb-2 border border-gray flex items-center last:mb-0">
-              <div className="w-5 h-5"></div>
+            <div className="p-2 mb-2 h-10 border border-gray flex items-center last:mb-0 border-y1-2">
+              <div id="guess-4-box" style={{ display: "none" }}>
+                <div className="mr-2">
+                  <RedEx />
+                </div>
+                <div className="flex flex-1 justify-between items-center">
+                  <div id="guess-4-text" className="text-white text-small">
+                    TEST
+                  </div>
+                </div>
+              </div>
+              <div id="guess-4-box-skip" style={{ display: "none" }}>
+                <div className="mr-2 w-5 h-5 border-2  border-gray"></div>
+                <div className="flex flex-1 justify-between items-center">
+                  <div className="text-gray text-small">SKIPPED</div>
+                </div>
+              </div>
             </div>
-            <div className="p-2 mb-2 border border-gray flex items-center last:mb-0">
-              <div className="w-5 h-5"></div>
-            </div>
-            <div className="p-2 mb-2 border border-gray flex items-center last:mb-0">
-              <div className="w-5 h-5"></div>
+            <div className="p-2 mb-2 h-10 border border-gray flex items-center last:mb-0 border-y1-2">
+              <div id="guess-5-box" style={{ display: "none" }}>
+                <div className="mr-2">
+                  <RedEx />
+                </div>
+                <div className="flex flex-1 justify-between items-center">
+                  <div id="guess-5-text" className="text-white text-small">
+                    TEST
+                  </div>
+                </div>
+              </div>
+              <div id="guess-5-box-skip" style={{ display: "none" }}>
+                <div className="mr-2 w-5 h-5 border-2  border-gray"></div>
+                <div className="flex flex-1 justify-between items-center">
+                  <div className="text-gray text-small">SKIPPED</div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -260,35 +361,67 @@ function App() {
             {/* vertical lines */}
 
             <div
-              id="playbar-foreground"
-              className="w-full h-3 bg-green absolute"
-              style={{ width: "50%" }}
-            ></div>
-            <div
               id="playbar-background"
-              className="w-full h-3 bg-black absolute"
+              className="w-full h-3 bg-bubble-gum absolute"
               style={{ width: "50%" }}
             ></div>
-          </div>
 
-          <div id="vertical-line-container" className="h-3 relative"></div>
-          <div
-            id="vertical lines"
-            className="border-x border-gray  h-3 inline-block"
-            style={{ width: "8.25%" }}
-          ></div>
-          <div
-            id="vertical lines"
-            className="border-x border-gray h-3 inline-block"
-            style={{ width: "8.25%" }}
-          ></div>
+            <div
+              id="playbar-limit"
+              className="w-full h-3 absolute"
+              style={{ width: "6.25%" }}
+            >
+              <div
+                id="playbar-foreground"
+                className="w-full h-3 bg-metal absolute"
+                style={{ width: "8%" }}
+              ></div>
+            </div>
+
+            <div id="vertical-line-container" className="h-3 w-full absolute">
+              <div className="w-full flex max-h-3 ">
+                <div
+                  id="vertical lines"
+                  className="border-x border-gray h-3 inline-block"
+                  style={{ width: "6.25%" }}
+                ></div>
+                <div
+                  id="vertical lines"
+                  className="border-r border-gray h-3 inline-block"
+                  style={{ width: "6.25%" }}
+                ></div>
+                <div
+                  id="vertical lines"
+                  className="border-r border-gray h-3 inline-block"
+                  style={{ width: "12.5%" }}
+                ></div>
+                <div
+                  id="vertical lines"
+                  className="border-r border-gray h-3 inline-block"
+                  style={{ width: "15%" }}
+                ></div>
+                <div
+                  id="vertical lines"
+                  className="border-r border-gray h-3 inline-block"
+                  style={{ width: "20%" }}
+                ></div>
+                <div
+                  id="vertical lines"
+                  className="border-r border-gray h-3 inline-block"
+                  style={{ width: "20%" }}
+                ></div>
+              </div>
+            </div>
+          </div>
         </div>
         <div className="border-t border-custom-line border-gray min-h-min">
           <div className="max-w-screen-sm w-full mx-auto flex-col">
             <div className="px-3 ">
               <div className="flex justify-between items-center text-white">
                 <div className="flex items-center">
-                  <div id="current-time">0:00</div>
+                  <div id="current-time" className="min-w-5">
+                    0:00
+                  </div>
                 </div>
                 <div className="flex justify-center items-center p-1">
                   <IconButton id="play-button" onClick={playAudio}>
@@ -299,7 +432,7 @@ function App() {
                     )}
                   </IconButton>
                 </div>
-                <div id="total-time">0:16</div>
+                <div id="total-time">0:00</div>
               </div>
               <Autocomplete
                 disablePortal
@@ -333,11 +466,15 @@ function App() {
             <div>
               <div className="flex justify-between pt-3">
                 <ThemeProvider theme={theme}>
-                  <Button variant="contained" color="warning">
+                  <Button onClick={skip} variant="contained" color="warning">
                     Skip
                     <span className="tracking-normal lowercase">(+1s)</span>
                   </Button>
-                  <Button variant="contained" color="secondary">
+                  <Button
+                    onClick={userSubmit}
+                    variant="contained"
+                    color="secondary"
+                  >
                     Submit
                   </Button>
                 </ThemeProvider>
