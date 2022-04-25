@@ -43,18 +43,18 @@ import { useSpring, animated } from "react-spring";
 
 import commands from "./commands.txt";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Icon } from "@mui/material";
 import { render } from "@testing-library/react";
 import Barchart from "./Barchart";
 
 import PlayCircle from "./PlayCircle";
 import { ThemeProvider } from "@emotion/react";
-import { palette } from "@mui/system";
+import { display, palette, style } from "@mui/system";
 import { alpha, styled } from "@mui/material/styles";
 import { appendOwnerState } from "@mui/base";
+import EndScreen from "./EndScreen";
 
-/* jshint ignore:start */
 function App() {
   const theme = createTheme({
     components: {
@@ -134,13 +134,29 @@ function App() {
   };
 
   const playAudio = () => {
-    console.log(newAudio);
     newAudio.pause();
     newAudio.currentTime = 0;
     toggle();
-    console.log(state);
+
     if (state) {
       newAudio.play();
+      if (audioLength.current > 0) {
+        newAudio.addEventListener("timeupdate", () => {
+          if (newAudio.currentTime >= audioLength.current) {
+            //end audio
+            newAudio.currentTime = audioLength.current;
+            newAudio.pause();
+            //end event listener
+            newAudio.removeEventListener("timeupdate", () => {});
+
+            setState(state);
+          }
+          document.getElementById("playbar-foreground").style.width = `${
+            (newAudio.currentTime / audioLength.current) * 100
+          }%`;
+          newAudio.removeEventListener("timeupdate", () => {});
+        });
+      }
       if (newAudio.duration >= 10) {
         document.getElementById(
           "total-time"
@@ -154,8 +170,13 @@ function App() {
   };
 
   const [kevCommands, setKevCommands] = useState([]);
+  const [inputValue, setInputValue] = useState("");
+  const [open, setOpen] = useState(false);
+
   const [newAudio, setAudio] = useState(null);
   const [audioName, setAudioName] = useState("");
+  const audioLength = useRef(null);
+  const songLengthArray = [12.5, 25, 40, 60, 80, 100, 100];
 
   useEffect(() => {
     const bucket = "kevdle-test";
@@ -169,6 +190,7 @@ function App() {
         const randomItem = objects[Math.floor(Math.random() * objects.length)];
         console.log(`${randomItem}.mp3`);
         setAudioName(randomItem);
+
         setKevCommands(objects);
 
         const audioUrl = `https://storage.googleapis.com/kevdle-test/${randomItem}.mp3`;
@@ -178,41 +200,123 @@ function App() {
 
   const [guesses, setGuesses] = useState([]);
   const [tries, setTries] = useState(0);
+  const [win, setWin] = useState(false);
+  const [tryLog, setTryLog] = useState(["◾", "◾", "◾", "◾", "◾"]);
+
+  useEffect(() => {
+    if (tries > 0) {
+      if (win === true) {
+        document.getElementById("playbar-background").style.width = `${100}%`;
+      } else {
+        document.getElementById(
+          "playbar-background"
+        ).style.width = `${songLengthArray[tries]}%`;
+      }
+    }
+  }, [tries, win]);
+
+  const loseGame = () => {
+    if (tries >= 5) {
+      //end game
+      document.getElementById("win-text").innerHTML = "You Lose Ya Dingus!";
+      document.getElementById("win-text").style.color = "red";
+      document.getElementById("try-text").innerHTML = "";
+      document.getElementById("end-screen").style.display = "flex";
+
+      document.getElementById("guess-boxes").style.display = "none";
+
+      audioLength.current = newAudio.duration;
+      document.getElementById("playbar-limit").style.width = `${100}%`;
+      setTries(5);
+
+      playAudio();
+    }
+  };
 
   const userSubmit = () => {
     const guess = document.getElementById("combo-box-demo").value;
     setGuesses([...guesses, guess]);
-    console.log(guesses);
     //add to tries
-    console.log(newAudio);
+    loseGame();
+
     if (guess === audioName) {
+      const tempTryLog = [...tryLog];
+      tempTryLog[tries] = "🟩";
+      setTryLog(tempTryLog);
+      setWin(true);
       setTries(tries + 1);
+      newTry();
       console.log("correct");
       //make a window appear that says correct
+      document.getElementById("end-screen").style.display = "flex";
+
+      document.getElementById("guess-boxes").style.display = "none";
+      audioLength.current = newAudio.duration;
+      document.getElementById("playbar-limit").style.width = `${100}%`;
+
+      playAudio();
     } else {
+      //change tryLog[tries] to "🟥"
+      const tempTryLog = [...tryLog];
+      tempTryLog[tries] = "🟥";
+      setTryLog(tempTryLog);
+
       const tempTries = tries + 1;
       setTries(tries + 1);
+      newTry();
       console.log("incorrect");
       //make guess box (tries) visible
-      console.log(tempTries);
       document.getElementById(`guess-${tempTries}-box`).style.display = "flex";
       document.getElementById(`guess-${tempTries}-text`).innerHTML = guess;
     }
   };
 
   const skip = () => {
-    setTries(tries + 1);
-    const tempTries = tries + 1;
-    document.getElementById(`guess-${tempTries}-box-skip`).style.display =
-      "flex";
+    //change tryLog[tries] to "⬜"
+    if (tries < 5) {
+      const tempTryLog = [...tryLog];
+      tempTryLog[tries] = "⬜";
+      setTryLog(tempTryLog);
+
+      setTries(tries + 1);
+      newTry();
+      const tempTries = tries + 1;
+      document.getElementById(`guess-${tempTries}-box-skip`).style.display =
+        "flex";
+    } else {
+      loseGame();
+    }
+  };
+
+  const newTry = () => {
+    audioLength.current =
+      newAudio.duration * (songLengthArray[tries + 1] / 100);
+    console.log(`you are on your ${tries + 1} try`);
+    newAudio.currentTime = 0;
+    document.getElementById("playbar-limit").style.width = `${
+      songLengthArray[tries + 1]
+    }%`;
   };
 
   useEffect(() => {
     if (newAudio) {
+      if (tries === 0) {
+        newAudio.addEventListener("loadedmetadata", () => {
+          audioLength.current =
+            newAudio.duration * (songLengthArray[tries] / 100);
+          console.log(
+            `new audio set audio length ${
+              newAudio.duration * (songLengthArray[tries] / 100)
+            }`
+          );
+        });
+      }
+    }
+  }, [newAudio]);
+
+  useEffect(() => {
+    if (newAudio) {
       newAudio.addEventListener("timeupdate", () => {
-        document.getElementById("playbar-foreground").style.width = `${
-          (newAudio.currentTime / newAudio.duration) * 100
-        }%`;
         if (newAudio.currentTime < 10) {
           document.getElementById(
             "current-time"
@@ -223,9 +327,9 @@ function App() {
           ).innerHTML = `0:${newAudio.currentTime.toFixed(0)}`;
         }
       });
+
       newAudio.onended = () => {
         setState(state);
-        console.log("audio over");
       };
     }
   }, [newAudio]);
@@ -259,7 +363,10 @@ function App() {
           </div>
         </header>
       </div>
-      <div className="w-full h-full flex flex-col flex-grow relative">
+      <div
+        id="guess-boxes"
+        className="w-full h-full flex flex-col flex-grow relative"
+      >
         <div className="max-w-screen-sm w-full mx-auto h-full flex flex-col justify-between overflow-auto">
           <div className="p-3 flex-col items-evenly">
             <div className="p-2 mb-2 h-10 border border-gray flex items-center last:mb-0 border-y1-2">
@@ -355,6 +462,13 @@ function App() {
           </div>
         </div>
       </div>
+      <EndScreen
+        data1={tries}
+        data2={audioName}
+        data3={theme}
+        data4={tryLog.join(" ")}
+      />
+
       <div className="inset-x-0 bottom-0 border-t border-custom-line border-gray">
         <div className="max-w-screen-sm w-full mx-auto flex-col px-3">
           <div id="playbar-container" className="h-3 relative">
@@ -362,19 +476,19 @@ function App() {
 
             <div
               id="playbar-background"
-              className="w-full h-3 bg-bubble-gum absolute"
-              style={{ width: "50%" }}
+              className="w-full h-3 bg-gray absolute"
+              style={{ width: "12.5%" }}
             ></div>
 
             <div
               id="playbar-limit"
               className="w-full h-3 absolute"
-              style={{ width: "6.25%" }}
+              style={{ width: "12.5%" }}
             >
               <div
                 id="playbar-foreground"
-                className="w-full h-3 bg-metal absolute"
-                style={{ width: "8%" }}
+                className="w-full h-3 bg-green absolute"
+                style={{ width: "0%" }}
               ></div>
             </div>
 
@@ -383,12 +497,7 @@ function App() {
                 <div
                   id="vertical lines"
                   className="border-x border-gray h-3 inline-block"
-                  style={{ width: "6.25%" }}
-                ></div>
-                <div
-                  id="vertical lines"
-                  className="border-r border-gray h-3 inline-block"
-                  style={{ width: "6.25%" }}
+                  style={{ width: "12.5%" }}
                 ></div>
                 <div
                   id="vertical lines"
@@ -410,6 +519,16 @@ function App() {
                   className="border-r border-gray h-3 inline-block"
                   style={{ width: "20%" }}
                 ></div>
+                <div
+                  id="vertical lines"
+                  className="border-r border-gray h-3 inline-block"
+                  style={{ width: "20%" }}
+                ></div>
+                {/* <div
+                  id="vertical lines"
+                  className="border-r border-gray h-3 inline-block"
+                  style={{ width: "20%" }}
+                ></div> */}
               </div>
             </div>
           </div>
@@ -435,13 +554,19 @@ function App() {
                 <div id="total-time">0:00</div>
               </div>
               <Autocomplete
-                disablePortal
                 id="combo-box-demo"
                 options={kevCommands}
-                getOptionLabel={(option) => option}
+                ListboxProps={{
+                  style: {
+                    //make display none is value is ""
+
+                    backgroundColor: "gray",
+                    border: "none",
+                  },
+                }}
                 sx={{
                   width: "100%",
-                  color: "primary",
+                  color: "secondary",
                   textColor: "primary",
                 }}
                 renderInput={(params) => (
@@ -468,7 +593,13 @@ function App() {
                 <ThemeProvider theme={theme}>
                   <Button onClick={skip} variant="contained" color="warning">
                     Skip
-                    <span className="tracking-normal lowercase">(+1s)</span>
+                    <span className="tracking-normal lowercase">
+                      (+
+                      {(
+                        songLengthArray[tries + 1] - songLengthArray[tries]
+                      ).toFixed(1)}
+                      %)
+                    </span>
                   </Button>
                   <Button
                     onClick={userSubmit}
@@ -485,7 +616,6 @@ function App() {
       </div>
     </main>
   );
-  /* jshint ignore:end */
 }
 
 export default App;

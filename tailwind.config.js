@@ -16,6 +16,7 @@ module.exports = {
       silver: "#ecebff",
       "bubble-gum": "#ff77e9",
       bermuda: "#78dcca",
+      green: "#1D7E05",
     },
     extend: {},
   },
