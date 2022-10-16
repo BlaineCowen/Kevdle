@@ -1,9 +1,0 @@
-// Initialize the Amazon Cognito credentials provider
-AWS.config.region = 'us-east-1'; // Region
-AWS.config.credentials = new AWS.CognitoIdentityCredentials({
-    IdentityPoolId: 'us-east-1:bed96648-d45a-46df-8865-0ad30ea281fd',
-});
-
-
-access key ID: "AKIAQ633GC6L76B2XH5O"
-Secret Key Id: "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"

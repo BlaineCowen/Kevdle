@@ -54,6 +54,7 @@ import { display, palette, style } from "@mui/system";
 import { alpha, styled } from "@mui/material/styles";
 import { appendOwnerState } from "@mui/base";
 import EndScreen from "./EndScreen";
+import ComboBox from "./demo";
 
 function App() {
   const theme = createTheme({
@@ -100,32 +101,6 @@ function App() {
     },
   });
 
-  const CssTextField = styled(TextField)({
-    "& label.Mui-Input": {
-      color: "primary",
-    },
-    "& label.Mui-focused": {
-      color: "primary",
-    },
-    "& label.Mui-active": {
-      color: "primary",
-    },
-    "& .MuiInput-underline:after": {
-      borderBottomColor: "red",
-    },
-    "& .MuiOutlinedInput-root": {
-      "& fieldset": {
-        borderColor: "gray",
-      },
-      "&:hover fieldset": {
-        borderColor: "white",
-      },
-    },
-    "&.Mui-focused fieldset": {
-      borderColor: "green",
-    },
-  });
-
   const [state, setState] = useState(true);
 
   const toggle = () => {
@@ -169,7 +144,7 @@ function App() {
     }
   };
 
-  const [kevCommands, setKevCommands] = useState([]);
+  const [kevCommands, setKevCommands] = useState([""]);
   const [inputValue, setInputValue] = useState("");
   const [open, setOpen] = useState(false);
 
@@ -553,36 +528,7 @@ function App() {
                 </div>
                 <div id="total-time">0:00</div>
               </div>
-              <Autocomplete
-                id="combo-box-demo"
-                options={kevCommands}
-                ListboxProps={{
-                  style: {
-                    //make display none is value is ""
-
-                    backgroundColor: "gray",
-                    border: "none",
-                  },
-                }}
-                sx={{
-                  width: "100%",
-                  color: "secondary",
-                  textColor: "primary",
-                }}
-                renderInput={(params) => (
-                  <ThemeProvider theme={theme}>
-                    <CssTextField
-                      {...params}
-                      label="Search"
-                      variant="outlined"
-                      sx={{
-                        borderColor: "primary",
-                        color: "secondary",
-                      }}
-                    />
-                  </ThemeProvider>
-                )}
-              />
+              <ComboBox />
             </div>
           </div>
         </div>
